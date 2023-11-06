@@ -3,8 +3,10 @@ package carlos.robert.ejercicio06listacompra;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
@@ -37,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
 
         productList = new ArrayList<>();
 
+        adapter = new ProductAdapter(productList, R.layout.product_view_holder, MainActivity.this);
+        layoutManager = new GridLayoutManager(this, 2);
+
+        binding.contentMain.container.setAdapter(adapter);
+        binding.contentMain.container.setLayoutManager(layoutManager);
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
                     float price = Float.parseFloat(txtPrice.getText().toString());
                     float total = quantity * price;
 
-                    lbTotal.setText(String.valueOf(total)+" $");
-                }catch (Exception e){
+                    lbTotal.setText(String.valueOf(total) + " $");
+                } catch (Exception e) {
 
                 }
 
@@ -105,14 +112,24 @@ public class MainActivity extends AppCompatActivity {
                     );
                     productList.add(0, product);
 
-                    /*
-                     *TODO: redibujar el recyclerview
-                     */
+                    adapter.notifyItemInserted(0);
                     Toast.makeText(MainActivity.this, product.toString(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
         return builder.create();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("LIST", productList);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        productList.addAll((ArrayList<Product>) savedInstanceState.getSerializable("LIST"));
+        adapter.notifyItemRangeChanged(0, productList.size());
     }
 }

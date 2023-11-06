@@ -7,5 +7,7 @@
     <string name="cancel">Cancel</string>
     <string name="accept">Ok</string>
     <string name="titleCreate">CREATE PRODUCT</string>
+    <string name="titleUpdate">UPDATE PRODUCT</string>
     <string name="missing">MisingData</string>
+    <string name="delete">DELETE PRODUCT</string>
 </resources>

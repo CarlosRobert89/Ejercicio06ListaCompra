@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:backgroundTint="@color/design_default_color_background">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:drawable/alert_dark_frame"
-        android:backgroundTint="@color/material_dynamic_primary90"
+        android:layout_margin="10dp"
+        android:background="#BAFFC2"
         android:orientation="horizontal"
         android:padding="10dp">
 
         <LinearLayout
-            android:layout_width="340dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            android:layout_weight="50"
             android:backgroundTint="@color/design_default_color_surface"
             android:orientation="vertical">
 
@@ -23,7 +24,7 @@
                 android:id="@+id/lbNameProductViewHolder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginRight="5dp"
                 android:paddingEnd="10dp"
                 android:text="TextView" />
 
@@ -32,7 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:backgroundTint="@color/design_default_color_secondary_variant"
+                android:layout_marginRight="5dp"
                 android:paddingEnd="10dp"
                 android:text="TextView" />
 
@@ -41,9 +42,10 @@
         <ImageButton
             android:id="@+id/btnDeleteProductViewHolder"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="@color/material_dynamic_primary90"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:background="#BAFFC2"
+            android:contentDescription="Eliminar producto"
             android:src="@android:drawable/ic_menu_delete" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ejercicio06ListaCompra</string>
+    <string name="name">Nombre</string>
+    <string name="quantity">Cantidad</string>
+    <string name="price">Precio</string>
+    <string name="total">Total</string>
+    <string name="cancel">Cancelar</string>
+    <string name="accept">Aceptar</string>
+    <string name="titleCreate">CREAR PRODUCTO</string>
+    <string name="titleUpdate">ACTUALIZAR PRODUCTO</string>
+    <string name="missing">FALTAN DATOS</string>
+    <string name="delete">ELIMINAR PRODUCTO</string>
+</resources>
