@@ -1,6 +1,7 @@
 package carlos.robert.ejercicio06listacompra;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,9 +18,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import carlos.robert.ejercicio06listacompra.adapters.ProductAdapter;
+import carlos.robert.ejercicio06listacompra.configuration.Constantes;
 import carlos.robert.ejercicio06listacompra.databinding.ActivityMainBinding;
 import carlos.robert.ejercicio06listacompra.modelos.Product;
 
@@ -30,12 +36,18 @@ public class MainActivity extends AppCompatActivity {
     private ProductAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
 
+    private SharedPreferences sp;
+    private Gson gson;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        sp = getSharedPreferences(Constantes.DATOS, MODE_PRIVATE);
+        gson = new Gson();
 
         productList = new ArrayList<>();
 
@@ -44,12 +56,26 @@ public class MainActivity extends AppCompatActivity {
 
         binding.contentMain.container.setAdapter(adapter);
         binding.contentMain.container.setLayoutManager(layoutManager);
+
+        leerInformacion();
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createProduct().show();
             }
         });
+    }
+
+    private void leerInformacion() {
+        if (sp.contains(Constantes.LISTAPRODUCTOS)) {
+            String listaJSON = sp.getString(Constantes.LISTAPRODUCTOS, "[]");
+            Type tipo = new TypeToken<ArrayList<Product>>() {
+            }.getType();
+            ArrayList<Product> temp = gson.fromJson(listaJSON, tipo);
+            productList.clear();
+            productList.addAll(temp);
+            adapter.notifyItemRangeInserted(0, productList.size());
+        }
     }
 
     private AlertDialog createProduct() {
@@ -79,17 +105,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-
-
                     int quantity = Integer.parseInt(txtQuantity.getText().toString());
                     float price = Float.parseFloat(txtPrice.getText().toString());
                     float total = quantity * price;
 
                     lbTotal.setText(String.valueOf(total) + " $");
                 } catch (Exception e) {
-
                 }
-
             }
         };
 
@@ -111,13 +133,20 @@ public class MainActivity extends AppCompatActivity {
                             Float.parseFloat(txtPrice.getText().toString())
                     );
                     productList.add(0, product);
-
                     adapter.notifyItemInserted(0);
-                    Toast.makeText(MainActivity.this, product.toString(), Toast.LENGTH_SHORT).show();
+                    guardarInformacion();
+                    //Toast.makeText(MainActivity.this, product.toString(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
         return builder.create();
+    }
+
+    private void guardarInformacion() {
+        SharedPreferences.Editor editor = sp.edit();
+        String listaJSON = gson.toJson(productList);
+        editor.putString(Constantes.LISTAPRODUCTOS, listaJSON);
+        editor.apply();
     }
 
     @Override
