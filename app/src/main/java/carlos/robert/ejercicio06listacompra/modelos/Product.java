@@ -8,6 +8,9 @@ public class Product implements Serializable {
     private float price;
     private float total;
 
+    public Product() {
+    }
+
     public Product(String name, int quantity, float price) {
         this.name = name;
         this.quantity = quantity;

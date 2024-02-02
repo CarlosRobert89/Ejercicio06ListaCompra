@@ -1,6 +1,7 @@
 package carlos.robert.ejercicio06listacompra;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -13,11 +14,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DatabaseReference;
+
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -35,8 +46,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Product> productList;
     private ProductAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-    private SharedPreferences sp;
-    private Gson gson;
+
+    private FirebaseDatabase database;
+    private DatabaseReference reference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,36 +57,39 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        sp = getSharedPreferences(Constantes.DATOS, MODE_PRIVATE);
-        gson = new Gson();
-
         productList = new ArrayList<>();
 
-        adapter = new ProductAdapter(productList, R.layout.product_view_holder, MainActivity.this);
+        database = FirebaseDatabase.getInstance("https://ejemplofirebase-29414-default-rtdb.europe-west1.firebasedatabase.app/");
+        reference = database.getReference(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("lista");
+
+        adapter = new ProductAdapter(productList, R.layout.product_view_holder, MainActivity.this, reference);
         layoutManager = new GridLayoutManager(this, 2);
 
         binding.contentMain.container.setAdapter(adapter);
         binding.contentMain.container.setLayoutManager(layoutManager);
 
-        leerInformacion();
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createProduct().show();
             }
         });
-    }
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    productList.clear();
+                    GenericTypeIndicator<ArrayList<Product>> gti = new GenericTypeIndicator<ArrayList<Product>>() {
+                    };
+                    productList.addAll(snapshot.getValue(gti));
+                    adapter.notifyDataSetChanged();
+                }
+            }
 
-    private void leerInformacion() {
-        if (sp.contains(Constantes.LISTAPRODUCTOS)) {
-            String listaJSON = sp.getString(Constantes.LISTAPRODUCTOS, "[]");
-            Type tipo = new TypeToken<ArrayList<Product>>() {
-            }.getType();
-            ArrayList<Product> temp = gson.fromJson(listaJSON, tipo);
-            productList.clear();
-            productList.addAll(temp);
-            adapter.notifyItemRangeInserted(0, productList.size());
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 
     private AlertDialog createProduct() {
@@ -132,8 +147,9 @@ public class MainActivity extends AppCompatActivity {
                             Float.parseFloat(txtPrice.getText().toString())
                     );
                     productList.add(0, product);
-                    adapter.notifyItemInserted(0);
-                    guardarInformacion();
+                    // adapter.notifyItemInserted(0);
+                    reference.setValue(productList);
+
                     //Toast.makeText(MainActivity.this, product.toString(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -141,23 +157,21 @@ public class MainActivity extends AppCompatActivity {
         return builder.create();
     }
 
-    private void guardarInformacion() {
-        SharedPreferences.Editor editor = sp.edit();
-        String listaJSON = gson.toJson(productList);
-        editor.putString(Constantes.LISTAPRODUCTOS, listaJSON);
-        editor.apply();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_logout, menu);
+        return true;
     }
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable("LIST", productList);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        productList.addAll((ArrayList<Product>) savedInstanceState.getSerializable("LIST"));
-        adapter.notifyItemRangeChanged(0, productList.size());
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.btnSalir) {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        }
+        return true;
     }
 }

@@ -2,7 +2,6 @@ package carlos.robert.ejercicio06listacompra.adapters;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -17,28 +16,24 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.List;
 
 import carlos.robert.ejercicio06listacompra.R;
-import carlos.robert.ejercicio06listacompra.configuration.Constantes;
 import carlos.robert.ejercicio06listacompra.modelos.Product;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductVH> {
     private List<Product> objects;
     private int resource;
     private Context context;
-    private SharedPreferences sp;
-    private Gson gson;
+    private DatabaseReference reference;
 
-    public ProductAdapter(List<Product> objects, int resource, Context context) {
+    public ProductAdapter(List<Product> objects, int resource, Context context, DatabaseReference reference) {
         this.objects = objects;
         this.resource = resource;
         this.context = context;
-
-        gson = new Gson();
-        sp = context.getSharedPreferences(Constantes.DATOS, Context.MODE_PRIVATE);
+        this.reference = reference;
     }
 
     @NonNull
@@ -48,9 +43,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         View productView = LayoutInflater.from(context).inflate(resource, null);
 
         productView.setLayoutParams(new RecyclerView.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                ));
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
         return new ProductVH(productView);
     }
 
@@ -131,19 +126,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 } else {
                     product.setQuantity(Integer.parseInt(txtQuantity.getText().toString()));
                     product.setPrice(Float.parseFloat(txtPrice.getText().toString()));
-                    notifyItemChanged(objects.indexOf(product));
 
-                    guardarInformacion();
+                    reference.setValue(objects);
+
+                    notifyItemChanged(objects.indexOf(product));
                 }
             }
         });
         return builder.create();
-    }
-
-    private void guardarInformacion() {
-        SharedPreferences.Editor editor = sp.edit();
-        String listaJSON = gson.toJson(objects);
-        editor.putString(Constantes.LISTAPRODUCTOS, listaJSON);
     }
 
     private AlertDialog confirmDelete(Product product) {
@@ -157,9 +147,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             public void onClick(DialogInterface dialog, int which) {
                 int position = objects.indexOf(product);
                 objects.remove(product);
+                reference.setValue(objects);
                 notifyItemRemoved(position);
-
-                guardarInformacion();
             }
         });
         return builder.create();
