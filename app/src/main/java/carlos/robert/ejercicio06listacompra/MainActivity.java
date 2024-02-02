@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Product> productList;
     private ProductAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
-
     private SharedPreferences sp;
     private Gson gson;
 

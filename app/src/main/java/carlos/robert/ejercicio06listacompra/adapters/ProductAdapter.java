@@ -50,9 +50,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         productView.setLayoutParams(new RecyclerView.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-        );
-
+                ));
         return new ProductVH(productView);
     }
 
@@ -67,7 +65,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             @Override
             public void onClick(View v) {
                 confirmDelete(product).show();
-
             }
         });
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -92,7 +89,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         EditText txtName = productModel.findViewById(R.id.txtNameProductViewModel);
         EditText txtQuantity = productModel.findViewById(R.id.txtQuantityProductViewModel);
         EditText txtPrice = productModel.findViewById(R.id.txtPriceProductViewModel);
-        EditText lbTotal = productModel.findViewById(R.id.lbTotalProductViewModel);
+        TextView lbTotal = productModel.findViewById(R.id.lbTotalProductViewModel);
         builder.setView(productModel);
 
         txtName.setText(product.getName());
@@ -104,12 +101,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
